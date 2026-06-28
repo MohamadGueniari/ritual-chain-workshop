@@ -50,13 +50,14 @@ export function HelpModal({
               />
             </Dialog.Overlay>
             <Dialog.Content asChild forceMount>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.94, y: 12 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.96, y: 8 }}
-                transition={{ type: "spring", stiffness: 280, damping: 26 }}
-                className="panel fixed left-1/2 top-1/2 z-[91] w-[min(94vw,640px)] -translate-x-1/2 -translate-y-1/2 rounded-lg p-7"
-              >
+              <div className="fixed inset-0 z-[91] grid place-items-center p-4">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.94, y: 12 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.96, y: 8 }}
+                  transition={{ type: "spring", stiffness: 280, damping: 26 }}
+                  className="panel w-[min(94vw,640px)] rounded-lg p-7"
+                >
                 <div className="mb-1 flex items-center gap-2.5">
                   <Package size={22} className="text-[var(--color-safety)]" />
                   <Dialog.Title className="text-[26px] font-bold text-[var(--color-paper)]">
@@ -87,7 +88,8 @@ export function HelpModal({
                 <p className="mt-5 text-center text-[14px] font-bold uppercase tracking-widest text-[var(--color-bullion)]">
                   AI recommends. Owner releases.
                 </p>
-              </motion.div>
+                </motion.div>
+              </div>
             </Dialog.Content>
           </Dialog.Portal>
         )}
