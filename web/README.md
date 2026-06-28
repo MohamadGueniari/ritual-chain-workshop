@@ -1,119 +1,115 @@
-# AI Bounty Judge
+# Blind Cargo Judge
 
-A workshop-demo frontend for the **Ritual Chain** `SimpleAIBountyJudge` contract.
+**Sealed Submission Freight System — a privacy-preserving AI bounty judge for Ritual L1.**
 
-> Submit answers to a bounty. After the deadline, Ritual AI ranks all
-> submissions. The bounty owner finalizes the winner.
+Bounty answers move through a secure freight terminal. During submission an
+answer is packed into a **sealed cargo container** — only its **barcode hash**
+ships on-chain. After the loading cutoff, containers pass **customs** (reveal):
+the barcode is rescanned and only matching containers open. Every verified
+container then goes through **one batch inspection** by the Ritual AI, which
+recommends a winner — and a **human owner signs the release manifest** to pay.
 
-Built with **Next.js (App Router) · TypeScript · Tailwind CSS · wagmi · viem**.
+> private answer → sealed container → barcode hash → customs reveal → batch
+> inspection → AI recommendation → human release → reward paid
+>
+> **AI recommends. Owner releases.**
 
----
+This is a frontend build (mock/demo logic), structured for real Ritual contract
+integration later.
 
-## Product flow
+## Tech stack
 
-1. A bounty owner **creates a bounty** with a title, rubric, deadline, and reward.
-2. Participants **submit answers** before the deadline.
-3. After the deadline, the owner clicks **Judge All Submissions**.
-4. The frontend gathers all submissions, builds one Ritual LLM request, encodes
-   it as `llmInput`, and calls `judgeAll(bountyId, llmInput)`.
-5. The contract stores/emits the **AI review**.
-6. The owner reads the AI review and clicks **Finalize Winner** with the chosen
-   `winnerIndex`.
-7. The contract pays the winner.
+- **React + Vite + TypeScript** — foundation
+- **Tailwind CSS v4** — the industrial cargo-terminal design system
+- **Radix UI** — accessible dialogs/drawers, heavily restyled
+- **Motion (Framer Motion)** — stage transitions and micro-interactions
+- **GSAP** — available for the heavier mechanical/conveyor sequences
+- **Zustand** — app state (phase, role, bounty, submissions, verdict, demo)
+- **viem** — commit-reveal hashing; service abstraction ready for Web3
+- **lucide-react** — icons
 
-> AI review is advisory. The bounty owner finalizes the winner. All submissions
-> are judged together after the deadline. Only one winner receives the reward.
+## The 10 checkpoints
 
----
+| # | Checkpoint | What happens |
+|---|-----------|--------------|
+| 0 | Wallet Dock | connect wallet; the dock gate opens |
+| 1 | Bounty Manifest | owner creates the manifest, locks the reward |
+| 2 | Phase Control | phase board + mechanical countdowns |
+| 3 | Seal Cargo | pack the answer; only the barcode hash ships |
+| 4 | Customs Reveal | scan two barcodes; match opens the container |
+| 5 | Fuel Inspection | owner loads inference fuel into the AI machine |
+| 6 | Batch Inspection | all verified cargo inspected together in one tunnel |
+| 7 | AI Report | the recommendation prints |
+| 8 | Release Winner | owner signs the manifest; the vault pays |
+| 9 | Cargo Registry | every container, by state |
 
-## Configure
+## Unique skeleton
 
-Copy the example env file and fill in your deployment:
-
-```bash
-cp .env.example .env.local
+```
+┌──────────────────── Top Terminal Bar ────────────────────┐
+│ Cargo Route │      Cargo Bay        │  Manifest Stack      │
+│ (left rail) │   (active checkpoint) │  (right panels)      │
+│  10 plates  │                       │                      │
+├──────────────────── Conveyor Event Log ──────────────────┤
+└───────────────────────────────────────────────────────────┘
+        + Cargo Registry drawer (opens from the bottom)
 ```
 
-| Variable | Purpose |
-| --- | --- |
-| `NEXT_PUBLIC_CONTRACT_ADDRESS` | Deployed `SimpleAIBountyJudge` address. The UI shows a banner until this is set. |
-| `NEXT_PUBLIC_RITUAL_RPC_URL` | Ritual Chain JSON-RPC endpoint. |
-| `NEXT_PUBLIC_RITUAL_CHAIN_ID` | Numeric chain id (default `1979`). |
-| `NEXT_PUBLIC_RITUAL_EXECUTOR_ADDRESS` | LLM executor / precompile-callback address used when encoding `judgeAll` input. Defaults to the LLM precompile `0x…0802`. |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | *(optional)* Enables the WalletConnect connector. Injected/MetaMask work without it. |
+A left vertical cargo route (10 checkpoint plates, the active one slides out and
+lights Safety Yellow), a center cargo bay that changes machinery per stage, a
+right stack of layered shipping manifests, and a bottom conveyor belt where
+events ride past as little crates.
 
-All values are read in `src/config/contract.ts` and `src/config/wagmi.ts`.
+## Color system
 
----
+Carbon Steel / Iron / Concrete / Paper base, with **Safety Yellow** (active),
+**Signal Teal** (verified reveals), **Burnt Orange** (owner), **Electric Blue**
+(Ritual AI), **Bullion Gold** (reward/winner), **Alarm Red** (errors), and
+**Sealed Grey** (hidden cargo).
 
-## Run
-
-```bash
-pnpm install      # or npm install
-pnpm dev          # http://localhost:3000
-```
-
-Build / start:
+## Getting started
 
 ```bash
-pnpm build
-pnpm start
+npm install
+npm run dev      # http://localhost:5173
+npm run build
 ```
 
----
+## Demo mode
 
-## How it's wired
+Toggle **Demo** in the top bar to load a sample freight job
+(*"Best Ritual Private Judge Design"*, 5 RITUAL, 4 participants, 4 sealed
+commitments, 3 valid reveals, 1 unrevealed). The demo controls let you advance
+the deadline, step checkpoints, run batch inspection, release the winner, and
+reset.
+
+## Web3-ready architecture
+
+- `src/services/mockBountyService.ts` — drives demo mode.
+- `src/services/web3BountyService.ts` — same interface, with `TODO`s where the
+  viem/wagmi calls against a deployed contract go.
+
+Ritual specifics noted in the scaffold:
+- `block.timestamp` is in **milliseconds** — deadlines stay in ms.
+- `judgeAll` must **pin `gas: 6_000_000`** (async LLM replay ~1.09M gas).
+- AI escrow ≈ 0.31 RITUAL per batch; the UI deposits ≈ 0.4.
+- Commitment = `keccak256(abi.encode(answer, salt, sender, bountyId))`.
+
+## Project structure
 
 ```
 src/
-  abi/AIJudge.ts            Contract ABI (provided)
-  config/
-    contract.ts            Address + executor + chain id from env vars
-    wagmi.ts               Custom Ritual Chain + wagmi config
-  app/
-    providers.tsx          'use client' wagmi + React Query provider tree
-    layout.tsx             Server layout (fonts, metadata) -> Providers
-    page.tsx               Dashboard: create, load-by-id, recent list, bounty view
-  hooks/
-    useBounty.ts           Reads + parses getBounty (polls so status updates)
-    useWriteTx.ts          idle -> wallet -> pending -> confirmed | failed tx state
-    useRecentBounties.ts   localStorage list of created/opened bounty ids
-  lib/
-    ritualLlm.ts           buildJudgeAllLlmInput() — Ritual LLM request encoder
-    aiReview.ts            Decode aiReview bytes + parse judge JSON
-    bounty.ts              Bounty type, status logic, submission gating
-    format.ts              Address/amount/timestamp formatting helpers
-  components/               UI primitives + each feature card
+  components/
+    layout/    TopBar, CargoRouteRail, CargoBayStage, ManifestStackPanel,
+               ConveyorEventLog, CargoRegistryDrawer, DemoControls
+    stages/    one scene per checkpoint (0–9)
+    cargo/     containers, barcode, countdown, AI machine, reward vault
+    modals/    SafetyConfirmDialog, HelpModal
+    feedback/  Toaster
+    ui/        Button, Field, Badge (restyled Radix)
+  store/       useCargoStore (Zustand)
+  services/    mock + web3-ready
+  lib/         crypto · stages · revealKit · utils
+  types/
+  styles/      globals.css (design system)
 ```
-
-### The Ritual LLM encoder (`src/lib/ritualLlm.ts`)
-
-`buildJudgeAllLlmInput({ executorAddress, title, rubric, submissions })` builds
-the batch-judging prompt (using the workshop's exact template, low temperature
-for stable judging) and ABI-encodes it with viem's `encodeAbiParameters` into
-the `bytes` passed to `judgeAll`.
-
-> ⚠️ **The exact Ritual LLM precompile ABI is not yet publicly pinned down.**
-> The encoder uses a clearly-documented *best-effort* tuple layout and is kept
-> isolated so only this file needs to change when the real ABI is published.
-> Flip the `ENCODING` constant to `"json"` for a mocked UTF-8 JSON payload that
-> lets the full create -> submit -> judge -> finalize flow run end-to-end against
-> a contract that simply stores/echoes the bytes.
-
-### AI review display
-
-After `judgeAll`, the UI reads `aiReview` from `getBounty`, decodes the bytes to
-text, and tries to parse the judge JSON (`winnerIndex`, `ranking`, `summary`).
-It renders the recommended winner, a ranking table with scores and reasons, and
-the summary. If parsing fails, it shows the raw response in a code block. The
-finalize input is prefilled with the AI's recommended `winnerIndex`.
-
----
-
-## Notes for the workshop
-
-- Transaction buttons show clear states and disable while pending.
-- Owner-only actions (Judge / Finalize) only appear for the connected owner.
-- The "recent bounties" list is kept in `localStorage` (no indexer required).
-- Multicall is **not** assumed — submissions are read one-by-one, so it works on
-  a fresh chain without a deployed multicall contract.

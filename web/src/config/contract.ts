@@ -1,33 +1,25 @@
 import type { Address } from "viem";
-import aiJudgeAbi from "@/abi/AIJudge";
+import cargoAbi from "@/abi/CargoManifestJudge";
 
 /**
- * Central place for the on-chain config the UI needs.
- * Everything is read from `NEXT_PUBLIC_*` env vars so the same build can be
- * pointed at different Ritual deployments without code changes.
+ * On-chain config. Read from Vite VITE_* env vars; sensible defaults point at
+ * the live CargoManifestJudge deployment on Ritual.
  */
 
-export const aiJudgeAbiConst = aiJudgeAbi;
+export const manifestAbi = cargoAbi;
 
-const rawAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS?.trim();
+const rawAddress = (import.meta.env.VITE_CONTRACT_ADDRESS as string | undefined)?.trim();
 
-/** Deployed SimpleAIBountyJudge address, or `undefined` if not configured. */
-export const contractAddress: Address | undefined =
+export const contractAddress: Address =
   rawAddress && /^0x[0-9a-fA-F]{40}$/.test(rawAddress)
     ? (rawAddress as Address)
-    : undefined;
+    : "0x679666151d5C2c329a23f5E23C659C383d5DAf2F";
 
-/** True when the contract address env var is present and well-formed. */
-export const isContractConfigured = Boolean(contractAddress);
-
-/** Ritual LLM executor / callback address used when encoding `judgeAll` input. */
 export const executorAddress: Address =
-  (process.env.NEXT_PUBLIC_RITUAL_EXECUTOR_ADDRESS?.trim() as Address | undefined) ??
-  "0x0000000000000000000000000000000000000802";
+  ((import.meta.env.VITE_RITUAL_EXECUTOR_ADDRESS as string | undefined)?.trim() as Address | undefined) ??
+  "0xB42e435c4252A5a2E7440e37B609F00c61a0c91B";
 
-export const ritualChainId = Number(
-  process.env.NEXT_PUBLIC_RITUAL_CHAIN_ID ?? "1979",
-);
+export const ritualChainId = Number((import.meta.env.VITE_RITUAL_CHAIN_ID as string | undefined) ?? "1979");
 
 export const ritualRpcUrl =
-  process.env.NEXT_PUBLIC_RITUAL_RPC_URL ?? "https://rpc.ritualfoundation.org";
+  (import.meta.env.VITE_RITUAL_RPC_URL as string | undefined) ?? "https://rpc.ritualfoundation.org";

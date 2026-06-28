@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   Blind Cargo Judge — Sealed Submission Freight System
+   A premium cryptographic cargo terminal. Industrial, tactile, bold. Heavy
+   metal panels, safety signage, barcode hashes, conveyor belts.
+   ========================================================================== */
+
+@theme {
+  /* base */
+  --color-carbon: #0b0d0e; /* Carbon Steel */
+  --color-iron: #171a1c; /* Iron Panel */
+  --color-concrete: #cfc7b8; /* Warm Concrete */
+  --color-paper: #f3ede1; /* Paper White (primary text) */
+
+  /* signal */
+  --color-safety: #ffd23f; /* Safety Yellow — active phase / highlights */
+  --color-teal: #36e0c2; /* Signal Teal — valid reveal / verified */
+  --color-owner: #e46f2e; /* Burnt Orange — owner actions */
+  --color-ai: #5aa9ff; /* Electric Blue — Ritual AI */
+  --color-bullion: #d8a530; /* Bullion Gold — reward / winner / payout */
+  --color-alarm: #ff3b30; /* Alarm Red — errors / mismatch */
+  --color-sealed: #2b3033; /* Sealed Grey — hidden / private state */
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  /* Transparent on purpose — the host page background stays visible. A soft
+     steel veil keeps text readable without hiding what's behind. */
+  background: transparent;
+  color: var(--color-paper);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.01em;
+}
+
+/* industrial terminal veil layered ON TOP of the host background (never
+   replaces it): brushed-steel readability wash, hazard depth, faint grid.
+   pointer-events: none so it never blocks interaction. */
+.cargo-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(50rem 40rem at 85% -10%, rgba(255, 210, 63, 0.06), transparent 60%),
+    radial-gradient(46rem 46rem at 5% 8%, rgba(54, 224, 194, 0.05), transparent 60%),
+    radial-gradient(60rem 50rem at 50% 120%, rgba(11, 13, 14, 0.5), transparent 70%),
+    linear-gradient(180deg, rgba(11, 13, 14, 0.34) 0%, rgba(16, 19, 20, 0.24) 50%, rgba(11, 13, 14, 0.4) 100%);
+}
+.cargo-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.4;
+  background-image:
+    linear-gradient(to right, rgba(207, 199, 184, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(207, 199, 184, 0.03) 1px, transparent 1px);
+  background-size: 46px 46px, 46px 46px;
+}
+
+/* ---------------------------------------------------------------- panels --- */
+
+.panel {
+  background: linear-gradient(168deg, #1b1f21, #131618);
+  border: 1px solid rgba(207, 199, 184, 0.12);
+  box-shadow:
+    inset 0 1px 0 0 rgba(243, 237, 225, 0.05),
+    0 22px 50px -30px rgba(0, 0, 0, 0.9);
+}
+.panel-glass {
+  background: linear-gradient(160deg, rgba(243, 237, 225, 0.06), rgba(243, 237, 225, 0.02));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(243, 237, 225, 0.1);
+}
+/* riveted metal edge */
+.rivets {
+  position: relative;
+}
+.rivets::before,
+.rivets::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background-image: radial-gradient(circle, rgba(207, 199, 184, 0.45) 1.4px, transparent 1.6px);
+  background-size: 2px 16px;
+  background-repeat: repeat-y;
+}
+.rivets::before { left: 6px; }
+.rivets::after { right: 6px; }
+
+/* hazard stripe (warnings / locked gates) */
+.hazard {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 210, 63, 0.85) 0,
+    rgba(255, 210, 63, 0.85) 12px,
+    rgba(11, 13, 14, 0.85) 12px,
+    rgba(11, 13, 14, 0.85) 24px
+  );
+}
+.hazard-alarm {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 59, 48, 0.85) 0,
+    rgba(255, 59, 48, 0.85) 12px,
+    rgba(11, 13, 14, 0.85) 12px,
+    rgba(11, 13, 14, 0.85) 24px
+  );
+}
+
+/* barcode strip for hashes */
+.barcode {
+  background-image: repeating-linear-gradient(
+    90deg,
+    currentColor 0,
+    currentColor 1px,
+    transparent 1px,
+    transparent 3px,
+    currentColor 3px,
+    currentColor 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+.focus-ring:focus-visible {
+  outline: none;
+  border-color: var(--color-safety);
+  box-shadow: 0 0 0 1px rgba(255, 210, 63, 0.5), 0 0 16px -4px rgba(255, 210, 63, 0.5);
+}
+
+/* thin contained scrollbars */
+.thin-scroll {
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(207, 199, 184, 0.2) transparent;
+}
+.thin-scroll::-webkit-scrollbar { width: 7px; height: 7px; }
+.thin-scroll::-webkit-scrollbar-thumb { background: rgba(207, 199, 184, 0.2); border-radius: 2px; }
+
+/* ----------------------------------------------------------- animations --- */
+
+@keyframes bc-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+@keyframes bc-pulse {
+  0%, 100% { opacity: 0.6; box-shadow: 0 0 0 0 currentColor; }
+  50% { opacity: 1; box-shadow: 0 0 16px 1px currentColor; }
+}
+@keyframes bc-conveyor { to { background-position: -48px 0; } }
+@keyframes bc-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-2px); }
+  40% { transform: translateX(2px); }
+  60% { transform: translateX(-1.5px); }
+  80% { transform: translateX(1.5px); }
+}
+@keyframes bc-scan { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+@keyframes bc-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes bc-stamp {
+  0% { opacity: 0; transform: scale(2.4) rotate(-14deg); }
+  60% { opacity: 1; transform: scale(0.9) rotate(-12deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-12deg); }
+}
+@keyframes bc-spin { to { transform: rotate(360deg); } }
+@keyframes bc-fill { from { width: 0; } }
+@keyframes bc-vault {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; filter: drop-shadow(0 0 14px var(--color-bullion)); }
+}
+
+.bc-blink { animation: bc-blink 1.4s ease-in-out infinite; }
+.bc-pulse { animation: bc-pulse 2.4s ease-in-out infinite; }
+.bc-conveyor { animation: bc-conveyor 1.4s linear infinite; }
+.bc-shake { animation: bc-shake 0.4s ease-in-out infinite; }
+.bc-scan { animation: bc-scan 2s linear infinite; }
+.bc-rise { animation: bc-rise 0.5s ease-out both; }
+.bc-stamp { animation: bc-stamp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.bc-spin { animation: bc-spin 6s linear infinite; transform-origin: center; }
+.bc-vault { animation: bc-vault 2.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

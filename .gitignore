@@ -1,10 +1,8 @@
-node_modules
-dist
-dist-ssr
-*.local
+# secrets — never commit
 .env
 .env.*
 !.env.example
+
+# misc
 .DS_Store
 *.log
-.vite
