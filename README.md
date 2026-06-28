@@ -30,6 +30,42 @@ TESTS ............... 32 passing (hardhat/contracts/CargoManifestJudge.t.sol)
 
 
 ------------------------------------------------------------
+ MANIFEST OF DELIVERABLES  (how we solved what was asked)
+------------------------------------------------------------
+
+The brief flagged one defect: the original judge published answers on submit, so
+a latecomer could copy the best entry and re-ship an improved one. Below is the
+fix, item by item, against what the assignment required.
+
+   REQUIRED                          DELIVERED IN BLIND CARGO JUDGE
+   ───────────────────────────────   ─────────────────────────────────────────
+   hide answers until judging        loading stores only the barcode; contents
+                                     stay "" in getSubmission until a verified
+                                     customs reveal
+   commit-reveal in Solidity         submitCommitment → revealAnswer → judgeAll
+                                     → finalizeWinner  (the 4 required signatures)
+                                     in contracts/CargoManifestJudge.sol
+   verify keccak256(answer, salt,    revealAnswer recomputes the barcode and
+     sender, bountyId)               reverts BarcodeMismatch unless it matches;
+                                     sender blocks theft, manifestId blocks replay
+   only valid reveals eligible       unopened containers can't be judged or won;
+                                     finalizeWinner reverts WinnerNotOpened
+   batch AI judging (one call)       judgeAll sends every opened container in ONE
+                                     request to LLM precompile 0x0802 (GLM-4.7-FP8)
+   AI recommends, human decides      judgeAll only writes bytes; finalizeWinner is
+                                     host-only and signs the payout
+   any EVM chain                     off Ritual, pass empty llmInput; lifecycle
+                                     still completes (how the 32 tests run)
+
+   DELIVERABLE FILES
+   ───────────────────────────────   ─────────────────────────────────────────
+   README explaining the lifecycle   this file
+   test plan for reveal cases        docs/TEST_PLAN.md
+   architecture note                 docs/ARCHITECTURE.md
+   reflection                        docs/REFLECTION.md
+
+
+------------------------------------------------------------
  WHY SEAL THE CARGO
 ------------------------------------------------------------
 
